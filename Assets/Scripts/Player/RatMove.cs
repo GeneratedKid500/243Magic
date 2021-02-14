@@ -4,39 +4,56 @@ using UnityEngine;
 
 public class RatMove : MonoBehaviour
 {
-    public int moveSpeed = 10;
+    AnimalSwitch aS;
 
-    // Start is called before the first frame update
+    [Header("Horizontal Movement")]
+    public float velocity;
+    public float maxSpeed = 12f;
+
+    [Header("Jumping")]
+    public float jumpForce = 15f;
+    public float rayLength = 0.55f;
+    [HideInInspector] public bool jump;
+
     void Start()
     {
-        
+        aS = GetComponent<AnimalSwitch>();
     }
 
-    // Update is called once per frame
-    void Update()
+    public void Move(Vector2 direction)
     {
-        //if (Input.GetKey(KeyCode.RightArrow))
-        //{
-        //    transform.Translate(Vector2.right * (Time.deltaTime * moveSpeed));
-        //    GetComponent<SpriteRenderer>().flipX = false;
-        //}
-        //else if (Input.GetKey(KeyCode.LeftArrow))
-        //{
-        //    transform.Translate(Vector2.left * (Time.deltaTime * moveSpeed));
-        //    GetComponent<SpriteRenderer>().flipX = true;
-        //}
-    }
-    public void Move()
-    {
-        if (Input.GetKey(KeyCode.RightArrow))
+        if (aS.groundLength != rayLength)
+            aS.groundLength = rayLength;
+
+        //jumping
+        if (Input.GetKeyDown(KeyCode.UpArrow) && aS.isGrounded)
         {
-            transform.Translate(Vector2.right * (Time.deltaTime * moveSpeed));
-            GetComponentInChildren<SpriteRenderer>().flipX = false;
+            jump = true;
         }
-        else if (Input.GetKey(KeyCode.LeftArrow))
+    }
+
+    public void FixedMove(Vector2 direction)
+    {
+        MoveChar(direction.x);
+        Jump();
+    }
+
+    void MoveChar(float horizontal)
+    {
+        aS.rb.AddForce(Vector2.right * horizontal * velocity);
+
+        if (Mathf.Abs(aS.rb.velocity.x) > maxSpeed)
         {
-            transform.Translate(Vector2.left * (Time.deltaTime * moveSpeed));
-            GetComponentInChildren<SpriteRenderer>().flipX = true;
+            aS.rb.velocity = new Vector2(Mathf.Sign(aS.rb.velocity.x) * maxSpeed, aS.rb.velocity.y);
+        }
+    }
+    void Jump()
+    {
+        if (jump)
+        {
+            aS.rb.velocity = new Vector2(aS.rb.velocity.x, 0);
+            aS.rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+            jump = false;
         }
     }
 }

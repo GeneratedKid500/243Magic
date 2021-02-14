@@ -4,63 +4,38 @@ using UnityEngine;
 
 public class BatMove : MonoBehaviour
 {
-    public int moveSpeed = 8;
-    public int upForce = 5;
-    bool moveUp = false;
+    AnimalSwitch aS;
 
-    Rigidbody2D rb;
+    [Header("Horizontal Movement")]
+    public float velocity;
+    public float maxGroundSpeed = 4f;
 
-    // Start is called before the first frame update
+    [Header("Jumping")]
+    public float rayLength = 1.1f;
+
     void Start()
     {
-        rb = GetComponentInParent<Rigidbody2D>();
+        aS = GetComponent<AnimalSwitch>();
     }
 
-    // Update is called once per frame
-    void Update()
+    public void Move(Vector2 direction)
     {
-        //if (Input.GetKey(KeyCode.RightArrow))
-        //{
-        //    transform.Translate(Vector2.right * (Time.deltaTime * moveSpeed), Space.World);
-        //    GetComponent<SpriteRenderer>().flipX = false;
-        //}
-        //else if (Input.GetKey(KeyCode.LeftArrow))
-        //{
-        //    transform.Translate(Vector2.left * (Time.deltaTime * moveSpeed), Space.World);
-        //    GetComponent<SpriteRenderer>().flipX = true;
-        //}
-
-        //if (Input.GetKeyDown(KeyCode.UpArrow))
-        //{
-        //    moveUp = true;
-        //}
+        if (aS.groundLength != rayLength)
+            aS.groundLength = rayLength;
     }
 
-    public void Move()
+    public void FixedMove(Vector2 direction)
     {
-        if (Input.GetKey(KeyCode.RightArrow))
-        {
-            transform.Translate(Vector2.right * (Time.deltaTime * moveSpeed), Space.World);
-            GetComponentInChildren<SpriteRenderer>().flipX = false;
-        }
-        else if (Input.GetKey(KeyCode.LeftArrow))
-        {
-            transform.Translate(Vector2.left * (Time.deltaTime * moveSpeed), Space.World);
-            GetComponentInChildren<SpriteRenderer>().flipX = true;
-        }
-
-        if (Input.GetKeyDown(KeyCode.UpArrow))
-        {
-            moveUp = true;
-        }
+        MoveChar(direction.x);
     }
 
-    void FixedUpdate()
+    void MoveChar(float horizontal)
     {
-        if (moveUp)
+        aS.rb.AddForce(Vector2.right * horizontal * velocity);
+
+        if (Mathf.Abs(aS.rb.velocity.x) > maxGroundSpeed)
         {
-            rb.AddForce(new Vector2(0, upForce), ForceMode2D.Impulse);
-            moveUp = false;
+            aS.rb.velocity = new Vector2(Mathf.Sign(aS.rb.velocity.x) * maxGroundSpeed, aS.rb.velocity.y);
         }
     }
 }

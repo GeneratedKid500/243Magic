@@ -4,48 +4,58 @@ using UnityEngine;
 
 public class CatMove : MonoBehaviour
 {
-    public float moveSpeed = 0.1f;
-    float vel;
+    AnimalSwitch aS;
 
-    Vector2 moveDir;
+    [Header("Movement")]
+    public float velocity;
+    public float maxSpeed = 7f;
+
+    [Header("Jumping")]
+    public float jumpForce = 15f;
+    public float rayLength = 1.3f;
+    [HideInInspector] public bool jump;
 
 
-    // Start is called before the first frame update
     void Start()
     {
-        moveSpeed /= 100;
+        aS = GetComponent<AnimalSwitch>();
     }
 
-    public void Move()
+    public void Move(Vector2 direction)
     {
-        if (Input.GetKey(KeyCode.RightArrow))
-        {
-            if (vel < 1)
-                vel += moveSpeed;
-            moveDir = Vector2.right;
-            GetComponentInChildren<SpriteRenderer>().flipX = false;
-        }
-        else if (Input.GetKey(KeyCode.LeftArrow))
-        {
-            if (vel < )
-                vel += moveSpeed;
-            moveDir = Vector2.left;
-            GetComponentInChildren<SpriteRenderer>().flipX = true;
-        }
-        else
-        {
-            if (vel > 0)
-            {
-                vel -= moveSpeed * 10;
-            }
-            else if (vel < 0)
-            {
-                vel = 0;
-            }
-        }
+        if (aS.groundLength != rayLength)
+            aS.groundLength = rayLength;
 
-        transform.Translate(moveDir * (Time.deltaTime * vel));
+        //jumping
+        if (Input.GetKeyDown(KeyCode.UpArrow) && aS.isGrounded)
+        {
+            jump = true;
+        }
+    }
 
- 
+    public void FixedMove(Vector2 direction)
+    {
+        MoveChar(direction.x);
+        Jump();
+    }
+
+    void MoveChar(float horizontal)
+    {
+        aS.rb.AddForce(Vector2.right * horizontal * velocity);
+
+        if (Mathf.Abs(aS.rb.velocity.x) > maxSpeed)
+        {
+            aS.rb.velocity = new Vector2(Mathf.Sign(aS.rb.velocity.x) * maxSpeed, aS.rb.velocity.y);
+        }
+    }
+
+    void Jump()
+    {
+        if (jump)
+        {
+            aS.rb.velocity = new Vector2(aS.rb.velocity.x, 0);
+            aS.rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+            jump = false;
+        }
     }
 }
