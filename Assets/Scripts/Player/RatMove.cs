@@ -8,7 +8,6 @@ public class RatMove : MonoBehaviour
 
     [Header("Horizontal Movement")]
     public float velocity;
-    public float maxSpeed = 12f;
 
     [Header("Jumping")]
     public float jumpForce = 15f;
@@ -25,8 +24,9 @@ public class RatMove : MonoBehaviour
         if (aS.groundLength != rayLength)
             aS.groundLength = rayLength;
 
-        //jumping
-        if (Input.GetKeyDown(KeyCode.UpArrow) && aS.isGrounded)
+        Debug.Log(aS.rb.velocity.y);
+
+        if (Input.GetKeyDown(KeyCode.UpArrow) && aS.hangCounter > 0f)
         {
             jump = true;
         }
@@ -40,20 +40,20 @@ public class RatMove : MonoBehaviour
 
     void MoveChar(float horizontal)
     {
-        aS.rb.AddForce(Vector2.right * horizontal * velocity);
-
-        if (Mathf.Abs(aS.rb.velocity.x) > maxSpeed)
-        {
-            aS.rb.velocity = new Vector2(Mathf.Sign(aS.rb.velocity.x) * maxSpeed, aS.rb.velocity.y);
-        }
+        aS.rb.velocity = new Vector2(horizontal * (Time.deltaTime * (velocity * 15)), aS.rb.velocity.y);
     }
+
     void Jump()
     {
         if (jump)
         {
-            aS.rb.velocity = new Vector2(aS.rb.velocity.x, 0);
-            aS.rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+            aS.rb.velocity = new Vector2(aS.rb.velocity.x, ((jumpForce * 15) * Time.fixedDeltaTime));
             jump = false;
+        }
+
+        if (!Input.GetKey(KeyCode.UpArrow) && aS.rb.velocity.y > 0)
+        {
+            aS.rb.velocity = new Vector2(aS.rb.velocity.x, aS.rb.velocity.y * 0.5f);
         }
     }
 }

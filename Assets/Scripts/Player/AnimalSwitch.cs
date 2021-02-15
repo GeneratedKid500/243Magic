@@ -12,21 +12,18 @@ public class AnimalSwitch : MonoBehaviour
     [Header("Collision")]
     public bool isGrounded = false;
     [HideInInspector] public float groundLength;
-
-    [Header("Physics")]
-    float gravity = 1;
-    float fallMultiplier = 5;
+    public float hangTime = 0.1f;
+    [HideInInspector] public float hangCounter;
 
     ////Animal transformations
     BatMove batMove;
     CatMove catMove;
     RatMove ratMove;
-    int pos = 1;
+    [HideInInspector] public int pos = 1;
 
     ////inspector values
     bool facingLeft = false;
     [HideInInspector] public Vector2 direction;
-    float linearDrag = 10f;
 
     // Start is called before the first frame update
     void Start()
@@ -48,8 +45,8 @@ public class AnimalSwitch : MonoBehaviour
         FlipDir();
 
         direction = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
-        
-        Debug.Log(rb.velocity.x);
+
+        //Debug.Log(direction.y);
 
         if (pos == 0)
         {
@@ -61,6 +58,7 @@ public class AnimalSwitch : MonoBehaviour
         }
         else if (pos == 2)
         {
+
             ratMove.Move(direction);
         }
     }
@@ -68,6 +66,11 @@ public class AnimalSwitch : MonoBehaviour
     void FixedUpdate()
     {
         IsGrounded();
+
+        if (!Input.GetKey("left") && !Input.GetKey("right"))
+        {
+            rb.velocity = new Vector2(0, rb.velocity.y);
+        }
 
         if (pos == 0)
         {
@@ -81,7 +84,6 @@ public class AnimalSwitch : MonoBehaviour
         {
             ratMove.FixedMove(direction);
         }
-        modifyPhysics();
     }
 
     void SwitchInput()
@@ -89,6 +91,7 @@ public class AnimalSwitch : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Alpha1) && pos != 0)
         {
             SwitchAnimal(0);
+            rb.gravityScale = 0;
         }
         else if (Input.GetKeyDown(KeyCode.Alpha2) && pos != 1)
         {
@@ -102,6 +105,7 @@ public class AnimalSwitch : MonoBehaviour
     }
     void SwitchAnimal(int i)
     {
+        rb.gravityScale = 1;
         animals[i].SetActive(true);
         animals[i].transform.position = animals[pos].transform.position;
         animals[pos].SetActive(false);
@@ -110,12 +114,12 @@ public class AnimalSwitch : MonoBehaviour
 
     void FlipDir()
     {
-        if (Input.GetKeyDown(KeyCode.RightArrow) && facingLeft)
+        if (direction.x > 0 && facingLeft)
         {
             facingLeft = false;
             transform.localScale = new Vector3(-transform.localScale.x, transform.localScale.y, transform.localScale.z);
         }
-        else if (Input.GetKeyDown(KeyCode.LeftArrow) && !facingLeft)
+        else if (direction.x < 0 && !facingLeft)
         {
             facingLeft = true;
             transform.localScale = new Vector3(-transform.localScale.x, transform.localScale.y, transform.localScale.z);
@@ -125,36 +129,16 @@ public class AnimalSwitch : MonoBehaviour
     public void IsGrounded()
     {
         isGrounded = Physics2D.Raycast(transform.position, Vector2.down, groundLength, ground);
-    }
-
-    public void modifyPhysics()
-    {
+        
+        //manage hangtime
         if (isGrounded)
         {
-            bool changingDirection = (direction.x > 0 && rb.velocity.x < 0) || (direction.x < 0 && rb.velocity.x > 0);
-
-            if (Mathf.Abs(direction.x) < 0.4f || changingDirection)
-            {
-                rb.drag = linearDrag;
-            }
-            else
-            {
-                rb.drag = 0f;
-            }
+            hangCounter = hangTime;
         }
-        //else
-        //{
-        //    rb.gravityScale = gravity;
-        //    rb.drag = linearDrag * 0.15f;
-        //    if (rb.velocity.y < 0)
-        //    {
-        //        rb.gravityScale = gravity * fallMultiplier;
-        //    }
-        //    else if (rb.velocity.y > 0 && !Input.GetKey(KeyCode.UpArrow))
-        //    {
-        //        rb.gravityScale = gravity * (fallMultiplier / 2);
-        //    }
-        //}
+        else
+        {
+            hangCounter -= Time.deltaTime;
+        }
     }
 
     private void OnDrawGizmos()

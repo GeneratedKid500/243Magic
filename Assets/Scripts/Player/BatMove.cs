@@ -7,8 +7,11 @@ public class BatMove : MonoBehaviour
     AnimalSwitch aS;
 
     [Header("Horizontal Movement")]
-    public float velocity;
-    public float maxGroundSpeed = 4f;
+    public float groundVel;
+    public float airVel;
+
+    [Header("Vertical Movement")]
+    public float upSpeed;
 
     [Header("Jumping")]
     public float rayLength = 1.1f;
@@ -26,16 +29,22 @@ public class BatMove : MonoBehaviour
 
     public void FixedMove(Vector2 direction)
     {
-        MoveChar(direction.x);
+        MoveHoriz(direction.x);
+        MoveVert(direction.y);
     }
 
-    void MoveChar(float horizontal)
+    void MoveHoriz(float horizontal)
     {
-        aS.rb.AddForce(Vector2.right * horizontal * velocity);
-
-        if (Mathf.Abs(aS.rb.velocity.x) > maxGroundSpeed)
+        if (aS.isGrounded)
+            aS.rb.velocity = new Vector2(horizontal * (Time.fixedDeltaTime * (groundVel * 15)), aS.rb.velocity.y);
+        else
         {
-            aS.rb.velocity = new Vector2(Mathf.Sign(aS.rb.velocity.x) * maxGroundSpeed, aS.rb.velocity.y);
+            aS.rb.velocity = new Vector2(horizontal * (Time.fixedDeltaTime * (airVel * 15)), aS.rb.velocity.y);
         }
+    }
+
+    void MoveVert(float vertical)
+    {
+        aS.rb.velocity = new Vector2(aS.rb.velocity.x, (Time.fixedDeltaTime * (upSpeed * 15) * vertical));
     }
 }

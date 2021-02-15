@@ -7,6 +7,7 @@ TagManager:
   - Animals/Cat
   - Animals/Bat
   - Animals/Rat
+  - Wall
   layers:
   - Default
   - TransparentFX
@@ -17,7 +18,7 @@ TagManager:
   - 
   - 
   - Ground
-  - 
+  - Walls
   - 
   - 
   - 
