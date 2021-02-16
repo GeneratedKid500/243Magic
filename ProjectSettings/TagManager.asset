@@ -8,6 +8,7 @@ TagManager:
   - Animals/Bat
   - Animals/Rat
   - Wall
+  - Colliders
   layers:
   - Default
   - TransparentFX
@@ -19,9 +20,9 @@ TagManager:
   - 
   - Ground
   - Walls
-  - 
-  - 
-  - 
+  - Enemy
+  - Heal
+  - WIN
   - 
   - 
   - 

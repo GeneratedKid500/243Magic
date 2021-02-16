@@ -1,14 +1,20 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerHealth : MonoBehaviour
 {
     public int maxHealth = 2;
     public Sprite[] animalSprites;
+    public Material hurtMat;
+    Material startMat;
 
     [SerializeField] int currentHealth;
     AnimalSwitch aS;
+
+    bool beenHit = false;
+    float beenHitTimer = 0;
 
     void Start()
     {
@@ -18,11 +24,23 @@ public class PlayerHealth : MonoBehaviour
 
     void Update()
     {
-        HealthChange(0);
+        if (beenHit)
+        {
+            GetComponentInChildren<Renderer>().material = hurtMat;
+            beenHitTimer += Time.deltaTime;
+            if (beenHitTimer >= 0.2f)
+            {
+                beenHit = false;
+                beenHitTimer = 0;
+                GetComponentInChildren<Renderer>().material = startMat;
+            }
+        }
     }
-    void HealthChange(int fx)
+
+    public void HealthChange(int fx)
     {
         currentHealth += fx;
+
         switch (currentHealth) 
         {
             case 2:
@@ -46,9 +64,18 @@ public class PlayerHealth : MonoBehaviour
                 break;
 
             case 0:
-                //die
+                SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+                break;
+
+            default:
+                currentHealth = 2;
                 break;
         }
 
+        if (fx < 0)
+        {
+            beenHit = true;
+            startMat = GetComponentInChildren<Renderer>().material;
+        }
     }
 }

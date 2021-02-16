@@ -8,10 +8,12 @@ public class AnimalSwitch : MonoBehaviour
     public Rigidbody2D rb;
     public GameObject[] animals;
     public LayerMask ground;
+    public bool canMove = true;
 
     [Header("Collision")]
     public bool isGrounded = false;
     [HideInInspector] public float groundLength;
+    float upperLength;
     public float hangTime = 0.1f;
     [HideInInspector] public float hangCounter;
 
@@ -36,30 +38,35 @@ public class AnimalSwitch : MonoBehaviour
         animals[0].SetActive(false);
         animals[1].SetActive(true);
         animals[2].SetActive(false);
+
+        upperLength = groundLength;
     }
 
     // Update is called once per frame
     void Update()
     {
-        SwitchInput();
-        FlipDir();
-
-        direction = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
-
-        //Debug.Log(direction.y);
-
-        if (pos == 0)
+        if (canMove)
         {
-            batMove.Move(direction);
-        }
-        else if (pos == 1)
-        {
-            catMove.Move(direction);
-        }
-        else if (pos == 2)
-        {
+            SwitchInput();
+            FlipDir();
 
-            ratMove.Move(direction);
+            direction = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
+
+            //Debug.Log(direction.y);
+
+            if (pos == 0)
+            {
+                batMove.Move(direction);
+            }
+            else if (pos == 1)
+            {
+                catMove.Move(direction);
+            }
+            else if (pos == 2)
+            {
+
+                ratMove.Move(direction);
+            }
         }
     }
 
@@ -67,22 +74,25 @@ public class AnimalSwitch : MonoBehaviour
     {
         IsGrounded();
 
-        if (!Input.GetKey("left") && !Input.GetKey("right"))
+        if (canMove)
         {
-            rb.velocity = new Vector2(0, rb.velocity.y);
-        }
+            if (!Input.GetKey("left") && !Input.GetKey("right"))
+            {
+                rb.velocity = new Vector2(0, rb.velocity.y);
+            }
 
-        if (pos == 0)
-        {
-            batMove.FixedMove(direction);
-        }
-        else if (pos == 1)
-        {
-            catMove.FixedMove(direction);
-        }
-        else if (pos == 2)
-        {
-            ratMove.FixedMove(direction);
+            if (pos == 0)
+            {
+                batMove.FixedMove(direction);
+            }
+            else if (pos == 1)
+            {
+                catMove.FixedMove(direction);
+            }
+            else if (pos == 2)
+            {
+                ratMove.FixedMove(direction);
+            }
         }
     }
 
@@ -95,8 +105,11 @@ public class AnimalSwitch : MonoBehaviour
         }
         else if (Input.GetKeyDown(KeyCode.Alpha2) && pos != 1)
         {
-            if (pos == 2) transform.position = new Vector2(transform.position.x, transform.position.y + 0.8f);
-            SwitchAnimal(1);
+            if (isRoomAbove())
+            {
+                if (pos == 2) transform.position = new Vector2(transform.position.x, transform.position.y + 0.8f);
+                SwitchAnimal(1);
+            }
         }
         else if (Input.GetKeyDown(KeyCode.Alpha3) && pos != 2)
         {
@@ -141,10 +154,16 @@ public class AnimalSwitch : MonoBehaviour
         }
     }
 
+    public bool isRoomAbove()
+    {
+        return !Physics2D.Raycast(transform.position, Vector2.up, upperLength, ground);
+    }
+
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
         Gizmos.DrawLine(transform.position, transform.position + Vector3.down * groundLength);
+        Gizmos.DrawLine(transform.position, transform.position + Vector3.up * upperLength);
     }
 
 }
