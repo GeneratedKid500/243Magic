@@ -7,6 +7,9 @@ public class PlayerHealth : MonoBehaviour
 {
     public int maxHealth = 2;
     public Sprite[] animalSprites;
+    Animator anim;
+    SpriteRenderer spr;
+    public RuntimeAnimatorController[] animalSets;
     public Material hurtMat;
     Material startMat;
 
@@ -18,21 +21,24 @@ public class PlayerHealth : MonoBehaviour
 
     void Start()
     {
+        spr = GetComponent<SpriteRenderer>();
+        anim = GetComponent<Animator>();
         currentHealth = maxHealth;
         aS = GetComponent<AnimalSwitch>();
+        SetAnim();
     }
 
     void Update()
     {
         if (beenHit)
         {
-            GetComponentInChildren<Renderer>().material = hurtMat;
+            anim.SetBool("Hurt", true);
             beenHitTimer += Time.deltaTime;
             if (beenHitTimer >= 0.2f)
             {
                 beenHit = false;
                 beenHitTimer = 0;
-                GetComponentInChildren<Renderer>().material = startMat;
+                anim.SetBool("Hurt", false);
             }
         }
     }
@@ -41,35 +47,11 @@ public class PlayerHealth : MonoBehaviour
     {
         currentHealth += fx;
 
-        switch (currentHealth) 
+        SetAnim();
+
+        if (currentHealth <= 0)
         {
-            case 2:
-                for (int i=0; i < 3; i++)
-                {
-                    aS.animals[i].SetActive(true);
-                    aS.animals[i].GetComponent<SpriteRenderer>().sprite = animalSprites[i];
-                    if (i != aS.pos)
-                        aS.animals[i].SetActive(false);
-                }
-                break;
-
-            case 1:
-                for (int i = 0; i < 3; i++)
-                {
-                    aS.animals[i].SetActive(true);
-                    aS.animals[i].GetComponent<SpriteRenderer>().sprite = animalSprites[i+3];
-                    if (i != aS.pos)
-                        aS.animals[i].SetActive(false);
-                }
-                break;
-
-            case 0:
-                SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-                break;
-
-            default:
-                currentHealth = 2;
-                break;
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
 
         if (fx < 0)
@@ -77,5 +59,38 @@ public class PlayerHealth : MonoBehaviour
             beenHit = true;
             startMat = GetComponentInChildren<Renderer>().material;
         }
+    }
+
+    void SetAnim()
+    {
+        switch (aS.pos) 
+        {
+            case 0:
+                if (currentHealth > 1)
+                    anim.runtimeAnimatorController = animalSets[0];
+                else
+                    anim.runtimeAnimatorController = animalSets[1];
+                spr.flipX = true;
+                break;
+
+            case 1:
+                if (currentHealth > 1)
+                    anim.runtimeAnimatorController = animalSets[2];
+                else
+                    anim.runtimeAnimatorController = animalSets[3];
+                spr.flipX = false;
+                break;
+
+            case 2:
+                if (currentHealth > 1)
+                    anim.runtimeAnimatorController = animalSets[4];
+                else
+                    anim.runtimeAnimatorController = animalSets[5];
+                spr.flipX = false;
+                break;
+
+
+        }
+
     }
 }

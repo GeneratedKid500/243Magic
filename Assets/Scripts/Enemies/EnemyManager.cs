@@ -7,6 +7,10 @@ public class EnemyManager : MonoBehaviour
     public Material hurtMat;
     Material startMat;
 
+    PlayerHealth pHP;
+    Animator playerAnim;
+    Animator anim;
+
     public Transform[] waypoints;
     int p = 0;
 
@@ -28,6 +32,11 @@ public class EnemyManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        pHP = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerHealth>();
+        playerAnim = pHP.GetComponent<Animator>();
+
+        anim = GetComponent<Animator>();
+
         curHP = maxHP;
         tempSpeed = speed;
 
@@ -73,27 +82,25 @@ public class EnemyManager : MonoBehaviour
 
         if (beenHit)
         {
-            GetComponent<Renderer>().material = hurtMat;
             beenHitTimer += Time.deltaTime;
             if (beenHitTimer >= 0.2f)
             {
                 beenHit = false;
                 beenHitTimer = 0;
-                GetComponent<Renderer>().material = startMat;
             }
         }
     }
 
     void Flip()
     {
-        if (transform.position.x - waypoints[p].position.x > 0 && facingLeft)
-        {
-            facingLeft = false;
-            transform.localScale = new Vector3(-transform.localScale.x, transform.localScale.y, transform.localScale.z);
-        }
-        else if (transform.position.x - waypoints[p].position.x < 0 && !facingLeft)
+        if (transform.position.x - waypoints[p].position.x > 0 && !facingLeft)
         {
             facingLeft = true;
+            transform.localScale = new Vector3(-transform.localScale.x, transform.localScale.y, transform.localScale.z);
+        }
+        else if (transform.position.x - waypoints[p].position.x < 0 && facingLeft)
+        {
+            facingLeft = false;
             transform.localScale = new Vector3(-transform.localScale.x, transform.localScale.y, transform.localScale.z);
         }
     }
@@ -102,6 +109,7 @@ public class EnemyManager : MonoBehaviour
     {
         Debug.Log("messageRecieved");
         curHP -= damage;
+        anim.Play("hurt");
 
         if (curHP == 0)
         {
@@ -113,11 +121,11 @@ public class EnemyManager : MonoBehaviour
 
     void OnCollisionEnter2D(Collision2D collision)
     {
-
         if (collision.transform.tag == "Player" && canHit)
         {
             Vector2 knockbackVector = collision.transform.position - transform.position;
-            collision.transform.GetComponent<PlayerHealth>().HealthChange(damage);
+            pHP.HealthChange(damage);
+            playerAnim.Play("Hurt");
             switch (this.gameObject.layer)
             {
                 case 11:

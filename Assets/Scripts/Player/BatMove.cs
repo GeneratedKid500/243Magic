@@ -15,6 +15,7 @@ public class BatMove : MonoBehaviour
 
     [Header("Jumping")]
     public float rayLength = 1.1f;
+    public Transform rayStart;
 
     void Start()
     {

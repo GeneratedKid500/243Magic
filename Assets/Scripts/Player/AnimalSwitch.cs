@@ -4,8 +4,10 @@ using UnityEngine;
 
 public class AnimalSwitch : MonoBehaviour
 {
-    [Header ("Components")]
+    [Header("Components")]
+    PlayerHealth playerHP;
     public Rigidbody2D rb;
+    [HideInInspector] public Animator anim;
     public GameObject[] animals;
     public LayerMask ground;
     public bool canMove = true;
@@ -31,6 +33,9 @@ public class AnimalSwitch : MonoBehaviour
     void Start()
     {
         rb.GetComponent<Rigidbody2D>();
+        anim = GetComponent<Animator>();
+
+        playerHP = GetComponent<PlayerHealth>();
         batMove = GetComponent<BatMove>();
         catMove = GetComponent<CatMove>();
         ratMove = GetComponent<RatMove>();
@@ -93,6 +98,8 @@ public class AnimalSwitch : MonoBehaviour
             {
                 ratMove.FixedMove(direction);
             }
+            anim.SetFloat("VelY", rb.velocity.y);
+            anim.SetFloat("VelX", Mathf.Abs(rb.velocity.x));
         }
     }
 
@@ -107,7 +114,8 @@ public class AnimalSwitch : MonoBehaviour
         {
             if (isRoomAbove())
             {
-                if (pos == 2) transform.position = new Vector2(transform.position.x, transform.position.y + 0.8f);
+                if (pos == 2) 
+                    transform.position = new Vector2(transform.position.x, transform.position.y + 0.8f);
                 SwitchAnimal(1);
             }
         }
@@ -115,6 +123,7 @@ public class AnimalSwitch : MonoBehaviour
         {
             SwitchAnimal(2);
         }
+        playerHP.HealthChange(0);
     }
     void SwitchAnimal(int i)
     {
@@ -146,10 +155,12 @@ public class AnimalSwitch : MonoBehaviour
         //manage hangtime
         if (isGrounded)
         {
+            anim.SetBool("isGrounded", isGrounded);
             hangCounter = hangTime;
         }
         else
         {
+            anim.SetBool("isGrounded", isGrounded);
             hangCounter -= Time.deltaTime;
         }
     }

@@ -7,6 +7,8 @@ public class CatAttack : MonoBehaviour
     float timeBtwAttack;
     public float startTimeBtwAttack;
 
+    Animator anim;
+
     public SpriteRenderer slashSprite;
     float timer = 0;
 
@@ -16,6 +18,11 @@ public class CatAttack : MonoBehaviour
     public int damage;
 
     bool keydown = false;
+
+    private void Start()
+    {
+        anim = GetComponentInParent<Animator>();
+    }
 
     void Update()
     {
@@ -31,6 +38,7 @@ public class CatAttack : MonoBehaviour
 
         if (slashSprite.enabled)
         {
+            anim.Play("Attack");
             timer += Time.deltaTime;
             if (timer > 0.05f)
             {
@@ -42,7 +50,7 @@ public class CatAttack : MonoBehaviour
 
     void Attack()
     {
-        if (Input.GetKey(KeyCode.Q) && !keydown)
+        if (Input.GetKey(KeyCode.X) && !keydown)
         {
             keydown = true;
             slashSprite.enabled = true;
@@ -53,7 +61,7 @@ public class CatAttack : MonoBehaviour
             }
         }
 
-        if (!Input.GetKey(KeyCode.Q))
+        if (!Input.GetKey(KeyCode.X))
         {
             keydown = false;
         }

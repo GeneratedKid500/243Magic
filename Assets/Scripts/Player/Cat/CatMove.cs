@@ -13,6 +13,7 @@ public class CatMove : MonoBehaviour
     public float jumpForce = 15f;
     public float rayLength = 1.3f;
     [HideInInspector] public bool jump;
+    public Transform rayStart;
 
 
     void Start()
@@ -29,6 +30,7 @@ public class CatMove : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.UpArrow) && aS.hangCounter > 0)
         {
             jump = true;
+            aS.anim.Play("Jump");
         }
     }
 

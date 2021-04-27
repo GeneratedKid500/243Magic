@@ -12,6 +12,7 @@ public class RatMove : MonoBehaviour
     [Header("Jumping")]
     public float jumpForce = 15f;
     public float rayLength = 0.55f;
+    public Transform rayStart;
     [HideInInspector] public bool jump;
 
     void Start()
@@ -29,6 +30,7 @@ public class RatMove : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.UpArrow) && aS.hangCounter > 0f)
         {
             jump = true;
+            aS.anim.Play("Jump");
         }
     }
 
